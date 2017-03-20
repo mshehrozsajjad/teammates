@@ -2,7 +2,7 @@
 <ruleset xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          name=""
-         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+         xsi:schemaLocation=" https://github.com/acanda/eclipse-pmd/blob/master/ch.acanda.eclipse.pmd/pmd-base.xml">
     <description>
         This is the PMD additional ruleset for TEAMMATES production code.
     </description>
