@@ -18,11 +18,13 @@ import teammates.common.exception.InvalidParametersException;
 import teammates.common.util.Assumption;
 import teammates.common.util.Config;
 import teammates.common.util.Const;
+import teammates.common.util.Logger;
 import teammates.common.util.StringHelper;
 import teammates.common.util.ThreadHelper;
 import teammates.storage.entity.Instructor;
 import teammates.storage.search.InstructorSearchDocument;
 import teammates.storage.search.InstructorSearchQuery;
+import teammates.storage.search.SearchDocument;
 
 import com.google.appengine.api.search.Results;
 import com.google.appengine.api.search.ScoredDocument;
@@ -34,6 +36,8 @@ import com.google.appengine.api.search.ScoredDocument;
  * @see InstructorAttributes
  */
 public class InstructorsDb extends EntitiesDb {
+
+    private static final Logger log = Logger.getLogger();
 
     /* =========================================================================
      * Methods related to Google Search API
@@ -49,6 +53,23 @@ public class InstructorsDb extends EntitiesDb {
         if (instructor.key != null) {
             putDocument(Const.SearchIndex.INSTRUCTOR, new InstructorSearchDocument(instructor));
         }
+    }
+
+    /**
+     * Batch creates or updates documents for the given instructors.
+     */
+    public void putDocuments(List<InstructorAttributes> instructorParams) {
+        List<SearchDocument> instructorDocuments = new ArrayList<SearchDocument>();
+        for (InstructorAttributes instructor : instructorParams) {
+            if (instructor.key == null) {
+                instructor = this.getInstructorForEmail(instructor.courseId, instructor.email);
+            }
+            // defensive coding for legacy data
+            if (instructor.key != null) {
+                instructorDocuments.add(new InstructorSearchDocument(instructor));
+            }
+        }
+        putDocuments(Const.SearchIndex.INSTRUCTOR, instructorDocuments);
     }
 
     public void deleteDocument(InstructorAttributes instructorToDelete) {

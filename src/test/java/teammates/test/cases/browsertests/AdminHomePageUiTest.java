@@ -34,8 +34,7 @@ import teammates.test.pageobjects.StudentProfilePage;
 import com.google.appengine.api.datastore.Text;
 
 /**
- * Covers the home page for admins.
- * SUT: {@link AdminHomePage}
+ * SUT: {@link Const.ActionURIs#ADMIN_HOME_PAGE}.
  */
 @Priority(6)
 public class AdminHomePageUiTest extends BaseUiTestCase {
@@ -220,7 +219,7 @@ public class AdminHomePageUiTest extends BaseUiTestCase {
         coursesPage.loadInstructorHomeTab();
         instructorHomePage = AppPage.getNewPageInstance(browser, InstructorHomePage.class);
         instructorHomePage.clickFeedbackSessionViewResultsLink(demoCourseId, "Second team feedback session")
-                          .waitForPageToLoad();
+                          .expandPanels();
         instructorHomePage.verifyHtmlMainContent("/newlyJoinedInstructorFeedbackResultsPage.html");
 
         ______TS("new instructor can edit feedbackSession of sample course");

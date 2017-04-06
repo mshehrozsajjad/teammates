@@ -21,9 +21,11 @@ import teammates.common.exception.TeammatesException;
 import teammates.common.util.Assumption;
 import teammates.common.util.Config;
 import teammates.common.util.Const;
+import teammates.common.util.Logger;
 import teammates.common.util.StringHelper;
 import teammates.common.util.ThreadHelper;
 import teammates.storage.entity.CourseStudent;
+import teammates.storage.search.SearchDocument;
 import teammates.storage.search.StudentSearchDocument;
 import teammates.storage.search.StudentSearchQuery;
 
@@ -40,8 +42,21 @@ public class StudentsDb extends EntitiesDb {
 
     public static final String ERROR_UPDATE_EMAIL_ALREADY_USED = "Trying to update to an email that is already used by: ";
 
+    private static final Logger log = Logger.getLogger();
+
     public void putDocument(StudentAttributes student) {
         putDocument(Const.SearchIndex.STUDENT, new StudentSearchDocument(student));
+    }
+
+    /**
+     * Batch creates or updates search documents for the given students.
+     */
+    public void putDocuments(List<StudentAttributes> students) {
+        List<SearchDocument> studentDocuments = new ArrayList<SearchDocument>();
+        for (StudentAttributes student : students) {
+            studentDocuments.add(new StudentSearchDocument(student));
+        }
+        putDocuments(Const.SearchIndex.STUDENT, studentDocuments);
     }
 
     /**
@@ -61,7 +76,7 @@ public class StudentsDb extends EntitiesDb {
 
     /**
      * This method should be used by admin only since the searching does not restrict the
-     * visibility according to the logged-in user's google ID. This is used by amdin to
+     * visibility according to the logged-in user's google ID. This is used by admin to
      * search students in the whole system.
      * @return null if no result found
      */
@@ -419,7 +434,7 @@ public class StudentsDb extends EntitiesDb {
     private void recreateStudentWithNewEmail(
             CourseStudent newCourseStudent, String lastName, CourseStudent courseStudent,
             boolean hasDocument, boolean keepUpdateTimestamp, String courseId, String email)
-            throws InvalidParametersException, EntityDoesNotExistException {
+            throws InvalidParametersException {
         newCourseStudent.setLastName(lastName);
         newCourseStudent.setCreatedAt(courseStudent.getCreatedAt());
         if (keepUpdateTimestamp) {

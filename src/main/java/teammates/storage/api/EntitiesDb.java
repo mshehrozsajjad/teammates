@@ -22,6 +22,7 @@ import teammates.storage.search.SearchManager;
 import teammates.storage.search.SearchQuery;
 
 import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.search.Document;
 import com.google.appengine.api.search.Results;
 import com.google.appengine.api.search.ScoredDocument;
 import com.google.appengine.api.search.SearchQueryException;
@@ -46,10 +47,9 @@ public abstract class EntitiesDb {
     public static final String ERROR_TRYING_TO_MAKE_NON_EXISTENT_ACCOUNT_AN_INSTRUCTOR =
             "Trying to make an non-existent account an Instructor :";
 
-    protected static final Logger log = Logger.getLogger();
-
     private static final PersistenceManagerFactory PMF = JDOHelper.getPersistenceManagerFactory("transactions-optional");
     private static final ThreadLocal<PersistenceManager> PER_THREAD_PM = new ThreadLocal<PersistenceManager>();
+    private static final Logger log = Logger.getLogger();
 
     /**
      * Preconditions:
@@ -285,7 +285,19 @@ public abstract class EntitiesDb {
         try {
             SearchManager.putDocument(indexName, document.build());
         } catch (Exception e) {
-            log.info("Failed to put searchable document in " + indexName + " for " + document.toString());
+            log.severe("Failed to put searchable document in " + indexName + " for " + document.toString());
+        }
+    }
+
+    protected void putDocuments(String indexName, List<SearchDocument> documents) {
+        List<Document> searchDocuments = new ArrayList<Document>();
+        for (SearchDocument document : documents) {
+            searchDocuments.add(document.build());
+        }
+        try {
+            SearchManager.putDocuments(indexName, searchDocuments);
+        } catch (Exception e) {
+            log.severe("Failed to batch put searchable documents in " + indexName + " for " + documents.toString());
         }
     }
 
